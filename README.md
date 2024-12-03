@@ -6,7 +6,7 @@ Small collection of solutions, done in C++.
 |-----|--------------------|--------------------|
 |  01 | :white_check_mark: | :white_check_mark: |
 |  02 | :white_check_mark: | :white_check_mark: |
-|  03 |                    |                    |
+|  03 | :white_check_mark: | :white_check_mark: |
 |  04 |                    |                    |
 |  05 |                    |                    |
 |  06 |                    |                    |
