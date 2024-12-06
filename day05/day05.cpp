@@ -58,16 +58,6 @@ class Ordering {
         }
     }
 
-    void erasePred(Node* node) {
-        if (candidates.erase(node)) {
-            // was just removed, so remove potential parents as well
-            for (Node* parent : node->parents) {
-                // erasePred(parent);
-                candidates.erase(parent);
-            }
-        }
-    }
-
     bool advance(int value) {
         assert(graph->nodes.count(value)); // all pages should have rules
         Node* node = graph->nodes[value];
@@ -77,8 +67,11 @@ class Ordering {
         }
 
         // update candidates
-        // go up the graph, nodes before our are no longer valid as following pages
-        erasePred(node);
+        // one step up the graph, parents are no longer valid as following pages
+        candidates.erase(node);
+        for (Node* parent : node->parents) {
+            candidates.erase(parent);
+        }
         return true;
     }
 
@@ -140,7 +133,7 @@ int main(int argc, char** argv) {
             booklet.push_back(page);
         }
 
-        // go through topological sort
+        // check if topological order is held
         Ordering ordering{&graph};
         bool valid{true};
         for (int page : booklet) {
