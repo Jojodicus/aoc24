@@ -9,7 +9,7 @@ Small collection of solutions, done in C++.
 |  03 | :white_check_mark: | :white_check_mark: |
 |  04 | :white_check_mark: | :white_check_mark: |
 |  05 | :white_check_mark: | :white_check_mark: |
-|  06 |                    |                    |
+|  06 | :white_check_mark: | :white_check_mark: |
 |  07 |                    |                    |
 |  08 |                    |                    |
 |  09 |                    |                    |
