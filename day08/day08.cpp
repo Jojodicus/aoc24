@@ -95,5 +95,5 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "part 1: " << antinodes.size() << std::endl;
-    std::cout << "part 1: " << antinodesRepeating.size() << std::endl;
+    std::cout << "part 2: " << antinodesRepeating.size() << std::endl;
 }
