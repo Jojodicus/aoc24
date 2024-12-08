@@ -11,7 +11,7 @@ Small collection of solutions, done in C++.
 |  05 | :white_check_mark: | :white_check_mark: |
 |  06 | :white_check_mark: | :white_check_mark: |
 |  07 | :white_check_mark: | :white_check_mark: |
-|  08 |                    |                    |
+|  08 | :white_check_mark: | :white_check_mark: |
 |  09 |                    |                    |
 |  10 |                    |                    |
 |  11 |                    |                    |
