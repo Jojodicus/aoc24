@@ -13,7 +13,7 @@ Small collection of solutions, done in C++.
 |  07 | :white_check_mark: | :white_check_mark: |
 |  08 | :white_check_mark: | :white_check_mark: |
 |  09 | :white_check_mark: | :white_check_mark: |
-|  10 |                    |                    |
+|  10 | :white_check_mark: | :white_check_mark: |
 |  11 |                    |                    |
 |  12 |                    |                    |
 |  13 |                    |                    |
