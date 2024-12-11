@@ -2,7 +2,8 @@
 #include <iostream>
 #include <vector>
 
-constexpr int ITERATIONS{75};
+constexpr int ITERATIONS_1{25};
+constexpr int ITERATIONS_2{75};
 
 int numberOfDigits(long n) {
     int digits;
@@ -23,6 +24,44 @@ std::pair<long, long> splitHalf(long n) {
     return {n / divisor, n % divisor};
 }
 
+long countStones(long singleStartStone, int iterations,
+    std::vector<std::vector<long>>& cache, bool cacheOnFirstIteration = true)
+{
+    std::vector<std::pair<long, int>> worklist{};
+    worklist.push_back({singleStartStone, iterations});
+    long totalIterations{};
+
+    while (!worklist.empty()) {
+        auto [work, it] = worklist.back();
+        worklist.pop_back();
+
+        if (!it) {
+            // done
+            totalIterations++;
+            continue;
+        }
+
+        if (work / 10 == 0 && (cacheOnFirstIteration || it != iterations)) {
+            // cached
+            totalIterations += cache[it][work];
+            continue;
+        }
+
+        // rules
+        if (work == 0) {
+            worklist.push_back({1, it - 1});
+        } else if (numberOfDigits(work) % 2 == 0) {
+            auto [left, right] = splitHalf(work);
+            worklist.push_back({left, it - 1});
+            worklist.push_back({right, it - 1});
+        } else {
+            worklist.push_back({work * 2024, it - 1});
+        }
+    }
+
+    return totalIterations;
+}
+
 int main(int argc, char** argv) {
     // if argument is given, open file and redirect cin
     // otherwise, receive data via stdin
@@ -40,81 +79,24 @@ int main(int argc, char** argv) {
 
     // little bit of caching
     std::vector<std::vector<long>> cache{};
-    for (int iteration{0}; iteration <= ITERATIONS; ++iteration) {
+    cache.push_back({});
+    for (int iteration{1}; iteration <= std::max(ITERATIONS_1, ITERATIONS_2); ++iteration) {
         std::vector<long> itVec{};
         for (int digit{0}; digit < 10; ++digit) {
-            std::vector<std::pair<long, int>> worklist{};
-            worklist.push_back({digit, iteration});
-            long totalIterations{};
-
-            while (!worklist.empty()) {
-                auto [work, it] = worklist.back();
-                worklist.pop_back();
-
-                if (!it) {
-                    // done
-                    totalIterations++;
-                    continue;
-                }
-
-                if (it != iteration && work / 10 == 0) {
-                    // cached
-                    totalIterations += cache[it][work];
-                    continue;
-                }
-
-                // rules
-                if (work == 0) {
-                    worklist.push_back({1, it - 1});
-                } else if (numberOfDigits(work) % 2 == 0) {
-                    auto [left, right] = splitHalf(work);
-                    worklist.push_back({left, it - 1});
-                    worklist.push_back({right, it - 1});
-                } else {
-                    worklist.push_back({work * 2024, it - 1});
-                }
-            }
-
-            itVec.push_back(totalIterations);
+            itVec.push_back(countStones(digit, iteration, cache, false));
         }
         cache.push_back(itVec);
     }
 
     // oh boy
     long numberOfStones{};
+    long numberOfStones2{};
     #pragma omp parallel for reduction(+ : numberOfStones)
     for (auto& stone: stones) {
-        std::vector<std::pair<long, int>> worklist{};
-        worklist.push_back({stone, ITERATIONS});
-
-        while (!worklist.empty()) {
-            auto [work, it] = worklist.back();
-            worklist.pop_back();
-
-            if (!it) {
-                // done
-                numberOfStones++;
-                continue;
-            }
-
-            if (work / 10 == 0) {
-                // cached
-                numberOfStones += cache.at(it).at(work);
-                continue;
-            }
-
-            // rules
-            if (work == 0) {
-                worklist.push_back({1, it - 1});
-            } else if (numberOfDigits(work) % 2 == 0) {
-                auto [left, right] = splitHalf(work);
-                worklist.push_back({left, it - 1});
-                worklist.push_back({right, it - 1});
-            } else {
-                worklist.push_back({work * 2024, it - 1});
-            }
-        }
+        numberOfStones += countStones(stone, ITERATIONS_1, cache);
+        numberOfStones2 += countStones(stone, ITERATIONS_2, cache);
     }
 
-    std::cout << ITERATIONS << " iterations, total: " << numberOfStones << std::endl;
+    std::cout << "part 1: " << numberOfStones << std::endl;
+    std::cout << "part 2: " << numberOfStones2 << std::endl;
 }
