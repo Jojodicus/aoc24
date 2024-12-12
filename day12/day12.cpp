@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
             char val{grid[row][col]};
             int area{};
             int perimeter{};
-            int perimeterDiscounted{};
+            int rebate{};
             std::vector<std::tuple<unsigned long, unsigned long>> worklist{{{row, col}}};
             while (!worklist.empty()) {
                 auto [workRow, workCol] = worklist.back();
@@ -61,7 +61,6 @@ int main(int argc, char** argv) {
                 visited[workRow][workCol] = true;
                 area++;
                 perimeter += 4;
-                perimeterDiscounted += 4;
 
                 // surroundings
                 std::vector<std::pair<unsigned long, unsigned long>> cross {
@@ -71,53 +70,64 @@ int main(int argc, char** argv) {
                     {workRow, workCol + 1}
                 };
                 for (auto [crossRow, crossCol] : cross) {
-                    // `0 - 1` would wrap around
+                    // `0 - 1` wraps around, saving a few comparisons (not that it matters anyway...)
                     if (crossRow >= nRows || crossCol >= nCols) {
                         continue;
                     }
                     char crossValue{grid[crossRow][crossCol]};
                     if (crossValue == val) {
                         // found connected field
-                        perimeter--; // no fence between them, executed twice for each fence for each direction
-                        perimeterDiscounted--;
+                        // no fence between them, executed twice for each fence for each direction
+                        perimeter--;
                         worklist.push_back({crossRow, crossCol});
 
                         // part 2 stuff...
                         if (visited[crossRow][crossCol]) {
+                            // avoid counting both directions
                             continue;
                         }
                         int diffR = workRow - crossRow;
                         int diffC = workCol - crossCol;
                         if (diffR) {
                             // check in column
-                            if (workCol == 0 || (grid[workRow][workCol-1] != val && grid[crossRow][crossRow-1] != val)) {
-                                // std::printf("1 %c: %ld,%ld %ld,%ld\n", val, workRow, workCol, crossRow, crossCol);
-                                perimeterDiscounted--;
+                            if (workCol == 0 || (grid[workRow][workCol-1] != val && grid[crossRow][crossCol-1] != val)) {
+                                // ....
+                                // XVV.
+                                // XVV.
+                                // ....
+                                rebate++;
                             }
-                            if (workCol == nCols-1 || (grid[workRow][workCol+1] != val && grid[crossRow][crossRow+1] != val)) {
-                                // std::printf("2 %c: %ld,%ld %ld,%ld\n", val, workRow, workCol, crossRow, crossCol);
-                                perimeterDiscounted--;
+                            if (workCol == nCols-1 || (grid[workRow][workCol+1] != val && grid[crossRow][crossCol+1] != val)) {
+                                // ....
+                                // .VVX
+                                // .VVX
+                                // ....
+                                rebate++;
                             }
                         }
                         if (diffC) {
                             // check in row
                             if (workRow == 0 || (grid[workRow-1][workCol] != val && grid[crossRow-1][crossCol] != val)) {
-                                // std::printf("3 %c: %ld,%ld %ld,%ld\n", val, workRow, workCol, crossRow, crossCol);
-                                perimeterDiscounted--;
+                                // .XX.
+                                // .VV.
+                                // .VV.
+                                // ....
+                                rebate++;
                             }
                             if (workRow == nRows-1 || (grid[workRow+1][workCol] != val && grid[crossRow+1][crossCol] != val)) {
-                                // std::printf("4 %c: %ld,%ld %ld,%ld\n", val, workRow, workCol, crossRow, crossCol);
-                                perimeterDiscounted--;
+                                // ....
+                                // .VV.
+                                // .VV.
+                                // .XX.
+                                rebate++;
                             }
                         }
                     }
                 }
             }
 
-            std::cout << val << " - a: " << area << ", p: " << perimeterDiscounted << std::endl;
-
             totalPrice += area * perimeter;
-            totalPriceDiscounted += area * perimeterDiscounted;
+            totalPriceDiscounted += area * (perimeter - rebate);
         }
     }
 
