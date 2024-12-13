@@ -2,8 +2,6 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
-#include <sstream>
-#include <vector>
 
 // the comments will be using the first example for concrete documentation
 
