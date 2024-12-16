@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <unordered_set>
 #include <vector>
@@ -86,37 +87,86 @@ int main(int argc, char** argv) {
         row++;
     }
 
-    unsigned minCost{};
+    // uhm
+    std::vector<std::vector<std::vector<std::vector<State>>>> seatBacktrack(row, std::vector(col, std::vector(4, std::vector<State>())));
+
+    State endState{};
 
     std::priority_queue<State> queue{};
     std::unordered_set<State, State::Hasher> visited{};
     queue.push({player.first, player.second, EAST, 0});
 
+    // bfs
     while (!queue.empty()) {
         State state{queue.top()};
         queue.pop();
 
+        // prune
         if (visited.contains(state)) {
             continue;
         }
         visited.insert(state);
 
         if (state.row == finish.first && state.col == finish.second) {
-            minCost = state.cost;
+            // found solution
+            endState = state;
             break;
         }
+
+        std::vector<State> extensions{
+            {state.row, state.col, rotate(state.facing, -1), state.cost + 1000}, // anti-clockwise
+            {state.row, state.col, rotate(state.facing, 1), state.cost + 1000} // clockwise
+        };
 
         // try to do a step
         int stepRow = state.row + delta[state.facing].first;
         int stepCol = state.col + delta[state.facing].second;
         if (!walls[stepRow][stepCol]) {
-            queue.push({stepRow, stepCol, state.facing, state.cost + 1});
+            extensions.push_back({stepRow, stepCol, state.facing, state.cost + 1});
         }
 
-        // try to rotate
-        queue.push({state.row, state.col, rotate(state.facing, -1), state.cost + 1000});
-        queue.push({state.row, state.col, rotate(state.facing, 1), state.cost + 1000});
+        // try each extension
+        for (auto& ex : extensions) {
+            queue.push(ex);
+            std::vector<State>& localSeatVec = seatBacktrack[ex.row][ex.col][ex.facing];
+            if (localSeatVec.empty() || localSeatVec.at(0).cost == ex.cost) {
+                // the states saved have their cost offset by one position
+                // we just use the State struct to make things easier
+                localSeatVec.push_back({state.row, state.col, state.facing, ex.cost});
+            }
+        }
     }
 
-    std::cout << "part 1: " << minCost << std::endl;
+    // avoid infinite loop, starting pos has no parent
+    seatBacktrack[player.first][player.second][EAST].clear();
+
+    std::set<std::pair<int, int>> seatSet{};
+    std::vector<State> workList{endState};
+    while (!workList.empty()) {
+        State s{workList.back()};
+        workList.pop_back();
+
+        seatSet.insert({s.row, s.col});
+
+        for (auto& e : seatBacktrack[s.row][s.col][s.facing]) {
+            workList.push_back(e);
+        }
+    }
+
+    // viz
+    for (unsigned r = 0; r < walls.size(); r++) {
+        for (unsigned c = 0; c < walls[r].size(); c++) {
+            if (walls[r][c]) {
+                std::cout << '#';
+            } else if (seatSet.count({r, c})) {
+                std::cout << 'O';
+            } else {
+                std::cout << '.';
+            }
+        }
+        std::cout << std::endl;
+    }
+
+    std::cout << "part 1: " << endState.cost << std::endl;
+    std::cout << "part 2: " << seatSet.size() << std::endl;
 }
