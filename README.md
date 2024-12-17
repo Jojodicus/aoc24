@@ -20,7 +20,7 @@ Small collection of solutions, done in C++.
 |  14 | :white_check_mark: | :white_check_mark: |
 |  15 | :white_check_mark: | :white_check_mark: |
 |  16 | :white_check_mark: | :white_check_mark: |
-|  17 | :white_check_mark: |                    |
+|  17 | :white_check_mark: | :white_check_mark: |
 |  18 |                    |                    |
 |  19 |                    |                    |
 |  20 |                    |                    |

@@ -35,7 +35,7 @@ ull_t combo(State& state, int operand) {
 
 // 0
 int adv(State& state, int operand) {
-    state.a /= 1ull << combo(state, operand);
+    state.a >>= combo(state, operand);
     state.pc += 2;
     return 0;
 }
@@ -82,14 +82,14 @@ int out(State& state, int operand) {
 
 // 6
 int bdv(State& state, int operand) {
-    state.b = state.a / (1ull << combo(state, operand));
+    state.b = state.a >> combo(state, operand);
     state.pc += 2;
     return 0;
 }
 
 // 7
 int cdv(State& state, int operand) {
-    state.c = state.a / (1ull << combo(state, operand));
+    state.c = state.a >> combo(state, operand);
     state.pc += 2;
     return 0;
 }
@@ -112,6 +112,33 @@ std::vector<int> run(std::vector<int>& program, State state) {
     }
 
     return output;
+}
+
+bool runQuine(std::vector<int>& program, State state) {
+    int (*operations[])(State&, int) = {
+        adv, bxl, bst, jnz, bxc, out, bdv, cdv
+    };
+
+    // ull_t a = state.a;
+
+    unsigned programIndex{};
+
+    while (state.pc < program.size()) {
+        bool shouldOutput = program[state.pc] == 5;
+
+        int opOutput = operations[program[state.pc]](state, program[state.pc + 1]);
+
+        if (shouldOutput) {
+            if (programIndex >= program.size() || program[programIndex++] != opOutput) {
+                // if (programIndex > 9) {
+                //     std::cout << std::oct << a << std::dec << std::endl;
+                // }
+                return false;
+            }
+        }
+    }
+
+    return programIndex == program.size();
 }
 
 std::string toString(std::vector<int>& vec) {
@@ -159,18 +186,27 @@ int main(int argc, char** argv) {
 
     std::cout << "part 1: " << toString(defaultOutput) << std::endl;
 
-    bool go{true};
-    #pragma omp parallel for shared(go)
-    for (ull_t a = 0; a <= -1ull-1; ++a) {
-        if (!go) {
-            continue;
+    // this is more or less hard-coded for my specific input:
+    // length of program: 16
+    // a will only ever be shifted right by 3
+    // -> a needs 16 * 3 = 48 bits -> 134217728 numbers in search space
+
+    // first 21 digits are kinda-known from earlier brute-force attempts (see commented code above)
+    ull_t candidateLast1 = 03267275;
+    ull_t candidateLast2 = 03267675;
+    // depending on the input, one offset might be enough, or you need more
+
+    for (ull_t a = 1ull << 47; a < 1ull << 48; a += 1 << 20) {
+        State aState1 = {0, a + candidateLast1, state.b, state.c};
+        if (runQuine(program, aState1)) {
+            std::cout << "part 2: " << a + candidateLast1 << std::endl;
+            break;
         }
 
-        State aState = {0, a, state.b, state.c};
-        std::vector<int> output = run(program, aState);
-        if (output == program) {
-            go = false;
-            std::cout << "part 2: " << a << std::endl;
+        State aState2 = {0, a + candidateLast2, state.b, state.c};
+        if (runQuine(program, aState2)) {
+            std::cout << "part 2: " << a + candidateLast2 << std::endl;
+            break;
         }
     }
 }
