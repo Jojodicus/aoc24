@@ -22,7 +22,7 @@ Small collection of solutions, done in C++.
 |  16 | :white_check_mark: | :white_check_mark: |
 |  17 | :white_check_mark: | :white_check_mark: |
 |  18 | :white_check_mark: | :white_check_mark: |
-|  19 |                    |                    |
+|  19 | :white_check_mark: | :white_check_mark: |
 |  20 |                    |                    |
 |  21 |                    |                    |
 |  22 |                    |                    |
