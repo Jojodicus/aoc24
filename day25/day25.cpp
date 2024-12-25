@@ -66,4 +66,5 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "part 1: " << matches << std::endl;
+    std::cout << "part 2: enjoy christmas!" << std::endl;
 }
