@@ -2,3 +2,5 @@
 aoc
 .build/
 input
+
+day24*.dot
